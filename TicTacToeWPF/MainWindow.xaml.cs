@@ -20,87 +20,45 @@ namespace TicTacToeWPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        private int CurrentPlayer = 1;
-        private int[,] CellsData = new int[3, 3];
+        private Game Game;
 
         public MainWindow()
         {
             InitializeComponent();
+            Game = new Game(this);
         }
 
-        private string GetSymbol() {
-            if (CurrentPlayer == 1)
-            {
-                return "X";
-            }
-            else
-            {
-                return "O";
-            }
+        public void SetPlayerLabel(string Symbol)
+        {
+            CurrentPlayerLabel.Content = $"Ходит {Symbol}";
         }
 
-        private bool IsWin(int x, int y) {
-            return ((CellsData[x, 0] == CurrentPlayer && CellsData[x, 1] == CurrentPlayer && CellsData[x, 2] == CurrentPlayer) ||
-            (CellsData[0, y] == CurrentPlayer && CellsData[1, y] == CurrentPlayer && CellsData[2, y] == CurrentPlayer) ||
-            (CellsData[0, 0] == CurrentPlayer && CellsData[1, 1] == CurrentPlayer && CellsData[2, 2] == CurrentPlayer) ||
-            (CellsData[0, 2] == CurrentPlayer && CellsData[1, 1] == CurrentPlayer && CellsData[2, 0] == CurrentPlayer));
+        public void Win(string Symbol)
+        {
+            MessageBox.Show($"Побеждает {Symbol}");
         }
 
-        private bool IsGameOver() {
-            for (int x = 0; x < 3; x++)
-            {
-                for (int y = 0; y < 3; y++)
-                {
-                    if (CellsData[x, y] == 0)
-                    {
-                        return false;
-}
-                }
-            }
-            return true;
+        public void GameOver()
+        {
+            MessageBox.Show("Ничья");
         }
 
         private void Step(object sender, RoutedEventArgs e)
         {
             Button CellButton = (Button)sender;
-            string Symbol = GetSymbol();
+            string Symbol = Game.GetSymbol();
             CellButton.Content = Symbol;
             CellButton.IsHitTestVisible = false;
 
             int xpos = Grid.GetColumn(CellButton);
             int ypos = Grid.GetRow(CellButton);
 
-            CellsData[xpos, ypos] = CurrentPlayer;
-
-            if (IsWin(xpos, ypos))
-            {
-                MessageBox.Show($"Побеждает {Symbol}");
-                Reset();
-            }
-            else if (IsGameOver())
-            {
-                MessageBox.Show("Ничья");
-                Reset();
-            }
-            else
-            {
-                CurrentPlayer = 3 - CurrentPlayer;
-                CurrentPlayerLabel.Content = $"Ходит {GetSymbol()}";
-            }
+            Game.Step(xpos,ypos);
         }
 
-        private void Reset()
+        public void Reset()
         {
-            CurrentPlayer = 1;
-            CurrentPlayerLabel.Content = "Ходит X";
-
-            for (int x = 0; x < 3; x++)
-            {
-                for (int y = 0; y < 3; y++)
-                {
-                    CellsData[x, y] = 0;
-                }
-            }
+            SetPlayerLabel("X");
 
             foreach (Button CellButton in ButtonsGrid.Children)
             {
